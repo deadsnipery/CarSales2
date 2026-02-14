@@ -1,0 +1,293 @@
+--// YazHub – Full Optimized Hub + Key System (Stable Build + Plot Fix)
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local CORRECT_KEY = "CarSales9174"
+local BOOST_SPEED = 350
+local DEFAULT_SPEED = 16
+
+--================ KEY GUI =================--
+
+local keyGui = Instance.new("ScreenGui")
+keyGui.Name = "YazHub_Key"
+keyGui.ResetOnSpawn = false
+keyGui.Parent = player:WaitForChild("PlayerGui")
+
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.fromOffset(260,200)
+keyFrame.Position = UDim2.fromScale(0.5,0.5)
+keyFrame.AnchorPoint = Vector2.new(0.5,0.5)
+keyFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+keyFrame.Parent = keyGui
+Instance.new("UICorner", keyFrame).CornerRadius = UDim.new(0,12)
+Instance.new("UIStroke", keyFrame).Color = Color3.fromRGB(80,80,80)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,35)
+title.Text = "YazHub Key System"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+title.Parent = keyFrame
+
+-- Key TextBox (empty placeholder, no default text interfering)
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.fromOffset(220,32)
+keyBox.Position = UDim2.fromOffset(20,55)
+keyBox.PlaceholderText = ""  -- empty
+keyBox.Text = ""             -- start empty
+keyBox.Font = Enum.Font.Gotham
+keyBox.TextSize = 14
+keyBox.TextColor3 = Color3.new(1,1,1)
+keyBox.BackgroundColor3 = Color3.fromRGB(30,30,30)
+keyBox.ClearTextOnFocus = false
+keyBox.Parent = keyFrame
+Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0,8)
+
+local unlockBtn = Instance.new("TextButton")
+unlockBtn.Size = UDim2.fromOffset(220,32)
+unlockBtn.Position = UDim2.fromOffset(20,95)
+unlockBtn.Text = "Unlock"
+unlockBtn.Font = Enum.Font.GothamMedium
+unlockBtn.TextSize = 14
+unlockBtn.TextColor3 = Color3.new(1,1,1)
+unlockBtn.BackgroundColor3 = Color3.fromRGB(0,120,200)
+unlockBtn.Parent = keyFrame
+Instance.new("UICorner", unlockBtn).CornerRadius = UDim.new(0,8)
+
+local copyBtn = Instance.new("TextButton")
+copyBtn.Size = UDim2.fromOffset(220,30)
+copyBtn.Position = UDim2.fromOffset(20,135)
+copyBtn.Text = "Copy Key"
+copyBtn.Font = Enum.Font.GothamMedium
+copyBtn.TextSize = 13
+copyBtn.TextColor3 = Color3.new(1,1,1)
+copyBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+copyBtn.Parent = keyFrame
+Instance.new("UICorner", copyBtn).CornerRadius = UDim.new(0,8)
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1,0,0,20)
+status.Position = UDim2.fromOffset(0,170)
+status.Font = Enum.Font.Gotham
+status.TextSize = 12
+status.TextColor3 = Color3.fromRGB(255,80,80)
+status.BackgroundTransparency = 1
+status.TextTransparency = 1
+status.Parent = keyFrame
+
+copyBtn.MouseButton1Click:Connect(function()
+	if setclipboard then
+		setclipboard(CORRECT_KEY)
+		status.TextColor3 = Color3.fromRGB(80,255,80)
+		status.Text = "Copied!"
+		status.TextTransparency = 0
+	end
+end)
+
+--================ HUB GUI =================--
+
+local hubGui = Instance.new("ScreenGui")
+hubGui.Name = "YazHub"
+hubGui.ResetOnSpawn = false
+hubGui.Enabled = false
+hubGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.fromOffset(250,420)
+frame.Position = UDim2.fromOffset(50,200)
+frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+frame.Parent = hubGui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,12)
+Instance.new("UIStroke", frame).Color = Color3.fromRGB(70,70,70)
+
+local hubTitle = Instance.new("TextLabel")
+hubTitle.Size = UDim2.new(1,0,0,35)
+hubTitle.Text = "YazHub"
+hubTitle.Font = Enum.Font.GothamBold
+hubTitle.TextSize = 16
+hubTitle.TextColor3 = Color3.new(1,1,1)
+hubTitle.BackgroundTransparency = 1
+hubTitle.Parent = frame
+
+-- Dragging
+do
+	local dragging, dragStart, startPos
+	hubTitle.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = frame.Position
+		end
+	end)
+	UIS.InputChanged:Connect(function(input)
+		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+			local delta = input.Position - dragStart
+			frame.Position = UDim2.new(
+				startPos.X.Scale,
+				startPos.X.Offset + delta.X,
+				startPos.Y.Scale,
+				startPos.Y.Offset + delta.Y
+			)
+		end
+	end)
+	UIS.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = false
+		end
+	end)
+end
+
+local function makeLabel(text,y)
+	local l = Instance.new("TextLabel")
+	l.Size = UDim2.fromOffset(220,25)
+	l.Position = UDim2.fromOffset(15,y)
+	l.Text = text
+	l.Font = Enum.Font.GothamBold
+	l.TextSize = 14
+	l.TextColor3 = Color3.fromRGB(0,170,255)
+	l.BackgroundTransparency = 1
+	l.TextXAlignment = Enum.TextXAlignment.Left
+	l.Parent = frame
+end
+
+local function makeButton(text,y)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.fromOffset(220,34)
+	b.Position = UDim2.fromOffset(15,y)
+	b.Text = text
+	b.Font = Enum.Font.GothamMedium
+	b.TextSize = 13
+	b.TextColor3 = Color3.new(1,1,1)
+	b.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	b.Parent = frame
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0,10)
+	return b
+end
+
+--================ TELEPORT HELPERS =================--
+
+local GARAGE_CFRAME = CFrame.new(-259.44, 12.23, 4431.52)
+
+local function teleportPlayer(cf)
+	local char = player.Character
+	if not char then return end
+	char:PivotTo(cf)
+end
+
+local function getPlotCFrame()
+	local plotVal = player:FindFirstChild("Plot")
+	if not plotVal then return end
+	local plotName =
+		(plotVal:IsA("StringValue") and plotVal.Value) or
+		(plotVal:IsA("ObjectValue") and plotVal.Value and plotVal.Value.Name)
+	local plots = Workspace:FindFirstChild("Plots")
+	local plot = plots and plots:FindFirstChild(plotName)
+	local part = plot and (plot.PrimaryPart or plot:FindFirstChildWhichIsA("BasePart"))
+	if part then
+		return part.CFrame + Vector3.new(0,5,0)
+	end
+end
+
+local function getTeleportLocation(name)
+	local folder = Workspace:FindFirstChild("TeleportLocations")
+	if folder then
+		local loc = folder:FindFirstChild(name)
+		if loc then
+			return loc.CFrame + Vector3.new(0,5,0)
+		end
+	end
+end
+
+local function getVehicle()
+	local char = player.Character
+	if not char then return end
+	local hum = char:FindFirstChildOfClass("Humanoid")
+	if not hum or not hum.SeatPart then return end
+	local model = hum.SeatPart:FindFirstAncestorOfClass("Model")
+	if model and not model.PrimaryPart then
+		model.PrimaryPart = model:FindFirstChildWhichIsA("BasePart", true)
+	end
+	return model
+end
+
+--================ VEHICLE TELEPORTS =================--
+
+makeLabel("Vehicle Teleports",40)
+
+makeButton("To Garage",70).MouseButton1Click:Connect(function()
+	local vehicle = getVehicle()
+	if vehicle then
+		vehicle:SetPrimaryPartCFrame(GARAGE_CFRAME)
+	end
+end)
+
+makeButton("To Plot",110).MouseButton1Click:Connect(function()
+	local vehicle = getVehicle()
+	local cf = getPlotCFrame()
+	if vehicle and cf then
+		vehicle:SetPrimaryPartCFrame(cf)
+	end
+end)
+
+--================ PLAYER TELEPORTS =================--
+
+makeLabel("Player Teleports",160)
+
+makeButton("To Garage",190).MouseButton1Click:Connect(function()
+	teleportPlayer(GARAGE_CFRAME)
+end)
+
+makeButton("To Plot",230).MouseButton1Click:Connect(function()
+	local cf = getPlotCFrame()
+	if cf then teleportPlayer(cf) end
+end)
+
+makeButton("To Dealership",270).MouseButton1Click:Connect(function()
+	local cf = getTeleportLocation("Dealership")
+	if cf then teleportPlayer(cf) end
+end)
+
+makeButton("To Neighborhood",310).MouseButton1Click:Connect(function()
+	local cf = getTeleportLocation("Neighborhood")
+	if cf then teleportPlayer(cf) end
+end)
+
+--================ SPEED =================--
+
+local speedBtn = makeButton("Speed: OFF",360)
+speedBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
+local speedEnabled = false
+
+speedBtn.MouseButton1Click:Connect(function()
+	speedEnabled = not speedEnabled
+	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+
+	if hum then
+		if speedEnabled then
+			hum.WalkSpeed = BOOST_SPEED
+			speedBtn.Text = "Speed: ON"
+			speedBtn.BackgroundColor3 = Color3.fromRGB(0,170,0)
+		else
+			hum.WalkSpeed = DEFAULT_SPEED
+			speedBtn.Text = "Speed: OFF"
+			speedBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
+		end
+	end
+end)
+
+--================ KEY CHECK =================--
+
+unlockBtn.MouseButton1Click:Connect(function()
+	if keyBox.Text == CORRECT_KEY then
+		keyGui:Destroy()
+		hubGui.Enabled = true
+	else
+		status.Text = "Invalid Key"
+		status.TextTransparency = 0
+	end
+end)
